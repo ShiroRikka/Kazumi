@@ -11,15 +11,20 @@ import 'package:kazumi/providers/video_source_provider.dart';
 class WebViewVideoSourceProvider implements IVideoSourceProvider {
   WebviewItemController? _webview;
   StreamSubscription? _subscription;
+  StreamSubscription? _logSubscription;
   Completer<VideoSource>? _completer;
   bool _isCancelled = false;
+
+  final StreamController<String> _logController = 
+      StreamController<String>.broadcast();
+  Stream<String> get onLog => _logController.stream;
 
   @override
   Future<VideoSource> resolve(
     String episodeUrl, {
     required bool useLegacyParser,
     int offset = 0,
-    Duration timeout = const Duration(seconds: 30),
+    Duration timeout = const Duration(seconds: 15),
   }) async {
     // 取消之前的解析（如果正在进行）
     _cancelCurrentResolve();
@@ -29,6 +34,12 @@ class WebViewVideoSourceProvider implements IVideoSourceProvider {
     if (_webview == null) {
       _webview = WebviewItemControllerFactory.getController();
       await _webview!.init();
+      
+      _logSubscription = _webview!.onLog.listen((log) {
+        if (!_logController.isClosed) {
+          _logController.add(log);
+        }
+      });
     }
 
     if (_isCancelled) {
@@ -99,6 +110,9 @@ class WebViewVideoSourceProvider implements IVideoSourceProvider {
   @override
   void dispose() {
     _cancelCurrentResolve();
+    _logSubscription?.cancel();
+    _logSubscription = null;
+    _logController.close();
     _webview?.dispose();
     _webview = null;
   }
