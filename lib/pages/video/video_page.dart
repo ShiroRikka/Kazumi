@@ -1034,123 +1034,129 @@ class _VideoPageState extends State<VideoPage>
       episodeNum = videoPageController.currentEpisode;
     }
 
-    return Scaffold(
-      floatingActionButton: videoPageController.isOfflineMode
-          ? null
-          : FloatingActionButton(
-              child: const Icon(Icons.download_rounded),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) => DownloadEpisodeSheet(road: currentRoad),
-                );
-              },
-            ),
-      body: Container(
-        color: Theme.of(context).canvasColor,
-        child: DefaultTabController(
-          length: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  TabBar(
-                    controller: tabController,
-                    dividerHeight: 0,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    labelPadding:
-                        const EdgeInsetsDirectional.only(start: 30, end: 30),
-                    onTap: (index) {
-                      if (index == 0) {
-                        menuJumpToCurrentEpisode();
-                      }
-                    },
-                    tabs: const [
-                      Tab(text: '选集'),
-                      Tab(text: '评论'),
-                    ],
-                  ),
-                  if (MediaQuery.sizeOf(context).width <=
-                      MediaQuery.sizeOf(context).height) ...[
-                    const Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(25),
-                        border: Border.all(
-                          color: playerController.danmakuOn
-                              ? Theme.of(context).hintColor
-                              : Theme.of(context).disabledColor,
-                          width: 0.5,
-                        ),
+    return Container(
+      color: Theme.of(context).canvasColor,
+      child: DefaultTabController(
+        length: 2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                TabBar(
+                  controller: tabController,
+                  dividerHeight: 0,
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  labelPadding:
+                      const EdgeInsetsDirectional.only(start: 30, end: 30),
+                  onTap: (index) {
+                    if (index == 0) {
+                      menuJumpToCurrentEpisode();
+                    }
+                  },
+                  tabs: const [
+                    Tab(text: '选集'),
+                    Tab(text: '评论'),
+                  ],
+                ),
+                if (MediaQuery.sizeOf(context).width <=
+                    MediaQuery.sizeOf(context).height) ...[
+                  const Spacer(),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(
+                        color: playerController.danmakuOn
+                            ? Theme.of(context).hintColor
+                            : Theme.of(context).disabledColor,
+                        width: 0.5,
                       ),
-                      width: 120,
-                      height: 31,
-                      child: GestureDetector(
-                        onTap: () {
-                          if (playerController.danmakuOn &&
-                              !videoPageController.loading) {
-                            showMobileDanmakuInput();
-                          } else if (videoPageController.loading) {
-                            KazumiDialog.showToast(message: '请等待视频加载完成');
-                          } else {
-                            KazumiDialog.showToast(message: '请先打开弹幕');
-                          }
-                        },
-                        child: Row(
-                          children: [
-                            Text(
-                              playerController.danmakuOn
-                                  ? '  点我发弹幕  '
-                                  : '  已关闭弹幕  ',
-                              softWrap: false,
-                              overflow: TextOverflow.clip,
-                              style: TextStyle(
-                                color: playerController.danmakuOn
-                                    ? Theme.of(context).hintColor
-                                    : Theme.of(context).disabledColor,
-                              ),
-                            ),
-                            Icon(
-                              Icons.send_rounded,
-                              size: 20,
+                    ),
+                    width: 120,
+                    height: 31,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (playerController.danmakuOn &&
+                            !videoPageController.loading) {
+                          showMobileDanmakuInput();
+                        } else if (videoPageController.loading) {
+                          KazumiDialog.showToast(message: '请等待视频加载完成');
+                        } else {
+                          KazumiDialog.showToast(message: '请先打开弹幕');
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            playerController.danmakuOn
+                                ? '  点我发弹幕  '
+                                : '  已关闭弹幕  ',
+                            softWrap: false,
+                            overflow: TextOverflow.clip,
+                            style: TextStyle(
                               color: playerController.danmakuOn
                                   ? Theme.of(context).hintColor
                                   : Theme.of(context).disabledColor,
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 8),
-                ],
-              ),
-              Divider(height: Utils.isDesktop() ? 0.5 : 0.2),
-              Expanded(
-                child: TabBarView(
-                  controller: tabController,
-                  children: [
-                    GridViewObserver(
-                      controller: observerController,
-                      child: Column(
-                        children: [
-                          menuBar,
-                          menuBody,
+                          ),
+                          Icon(
+                            Icons.send_rounded,
+                            size: 20,
+                            color: playerController.danmakuOn
+                                ? Theme.of(context).hintColor
+                                : Theme.of(context).disabledColor,
+                          ),
                         ],
                       ),
                     ),
-                    EpisodeInfo(
-                      episode: episodeNum,
-                      child: EpisodeCommentsSheet(),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+                const SizedBox(width: 8),
+              ],
+            ),
+            Divider(height: Utils.isDesktop() ? 0.5 : 0.2),
+            Expanded(
+              child: TabBarView(
+                controller: tabController,
+                children: [
+                  Stack(
+                    children: [
+                      GridViewObserver(
+                        controller: observerController,
+                        child: Column(
+                          children: [
+                            menuBar,
+                            menuBody,
+                          ],
+                        ),
+                      ),
+                      if (!videoPageController.isOfflineMode)
+                        Positioned(
+                          right: 16,
+                          bottom: 16,
+                          child: FloatingActionButton(
+                            child: const Icon(Icons.download_rounded),
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                builder: (context) =>
+                                    DownloadEpisodeSheet(road: currentRoad),
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                  EpisodeInfo(
+                    episode: episodeNum,
+                    child: EpisodeCommentsSheet(),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
